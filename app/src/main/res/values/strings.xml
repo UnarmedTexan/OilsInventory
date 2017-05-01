@@ -1,0 +1,129 @@
+<resources>
+    <!-- Name of the application [CHAR LIMIT=20] -->
+    <string name="app_name">Essential Oils Inventory</string>
+
+    <!-- Main Menu option label for inserting fake oil data - for testing purposes [CHAR LIMIT=20] -->
+    <string name="action_insert_dummy_data">Insert Dummy Data</string>
+
+    <!-- Main Menu option label for deleting ALL oil data [CHAR LIMIT=20] -->
+    <string name="action_delete_all_entries">Delete All Oils</string>
+
+    <!-- Editor Menu option label for saving oil and return to Main [CHAR LIMIT=20] -->
+    <string name="action_save">Save Oil</string>
+
+    <!-- Editor Menu option label for deleting the selected oil [CHAR LIMIT=20] -->
+    <string name="action_delete">Delete Oil</string>
+
+    <!-- Label for oil name field in the editor [CHAR LIMIT=30] -->
+    <string name="label_oil_name">ESSENTIAL OIL</string>
+
+    <!-- Text hint for name field in the editor [CHAR LIMIT=30] -->
+    <string name="hint_oil_name">Enter oil (i.e. Lavender)</string>
+
+    <!-- Text hint for name field in the editor [CHAR LIMIT=30] -->
+    <string name="oil_name">Lavender</string>
+
+    <!-- Label for size of the oil bottle in the editor [CHAR LIMIT=20] -->
+    <string name="size_bottle">SIZE BOTTLE</string>
+
+    <!-- Label for dropdown menu option if the size bottle is 15ml [CHAR LIMIT=5] -->
+    <string name="size_fifteen">15ml</string>
+
+    <!-- Label for dropdown menu option if the size bottle is 5ml [CHAR LIMIT=5] -->
+    <string name="size_five">5ml</string>
+
+    <!-- Label for quantity of oil inventory [CHAR LIMIT=10] -->
+    <string name="label_quantity">QUANTITY</string>
+
+    <!-- Label for price of oil [CHAR LIMIT=10] -->
+    <string name="label_price">PRICE:</string>
+
+    <!-- Text for the initial quantity display [CHAR LIMIT=5] -->
+    <string name="initial_quantity_value">0</string>
+
+    <!-- Button text for adding an image [CHAR LIMIT=10] -->
+    <string name="add_image">ADD IMAGE</string>
+
+    <!-- Button text for placing an order [CHAR LIMIT=20] -->
+    <string name="place_order">PLACE AN ORDER</string>
+
+
+
+    <!-- Text hint for price of a bottle in the editor [CHAR LIMIT=30] -->
+    <string name="hint_price_bottle">$ 0.00</string>
+
+    <!-- Units for weight of the pet (kilograms) [CHAR LIMIT=5] -->
+    <string name="unit_bottle_price">per bottle</string>
+
+
+    <!-- Title text for the empty view, which describes the empty dog house image [CHAR LIMIT=50] -->
+    <string name="empty_view_title_text">It\'s about time to order some oils...</string>
+
+    <!-- Title for the activity to add a new oil [CHAR LIMIT=20] -->
+    <string name="editor_activity_title_new_oil">Add an Oil</string>
+
+    <!-- Title for the activity to edit an existing oil [CHAR LIMIT=20] -->
+    <string name="editor_activity_title_edit_oil">Edit Oil</string>
+
+    <!-- Title for the activity displaying oil details [CHAR LIMIT=20] -->
+    <string name="details_activity_title">Essential Oil Details</string>
+
+    <!-- Toast message in editor when new oil has been successfully inserted [CHAR LIMIT=NONE] -->
+    <string name="editor_insert_oil_successful">Oil saved</string>
+
+    <!-- Toast message in editor when new oil has failed to be inserted [CHAR LIMIT=NONE] -->
+    <string name="editor_insert_oil_failed">Error with saving oil</string>
+
+    <!-- Toast message in editor when current oil was successfully updated [CHAR LIMIT=NONE] -->
+    <string name="editor_update_oil_successful">Oil updated</string>
+
+    <!-- Toast message in editor when current oil has failed to be updated [CHAR LIMIT=NONE] -->
+    <string name="editor_update_oil_failed">Error with updating oil</string>
+
+    <!-- Dialog message when user is leaving editor but hasn't saved changes [CHAR LIMIT=NONE] -->
+    <string name="unsaved_changes_dialog_msg">Discard changes and quit editing?</string>
+
+    <!-- Dialog button text for the option to discard a user's changes [CHAR LIMIT=20] -->
+    <string name="discard">Discard</string>
+
+    <!-- Dialog button text for the option to keep editing the current pet [CHAR LIMIT=20] -->
+    <string name="keep_editing">Keep Editing</string>
+
+    <!-- Dialog message to ask the user to confirm deleting the current oil [CHAR LIMIT=NONE] -->
+    <string name="delete_dialog_msg">Delete oil?</string>
+
+    <!-- Dialog button text for the option to confirm deleting the current oil [CHAR LIMIT=20] -->
+    <string name="delete">Delete</string>
+
+    <!-- Dialog button text for the option to cancel deletion of the current oil [CHAR LIMIT=20] -->
+    <string name="cancel">Cancel</string>
+
+    <!-- Toast message in editor when current oil was successfully deleted [CHAR LIMIT=NONE] -->
+    <string name="editor_delete_oil_successful">Oil deleted</string>
+
+    <!-- Toast message in editor when current oil has failed to be deleted [CHAR LIMIT=NONE] -->
+    <string name="editor_delete_oil_failed">Error with deleting oil</string>
+
+    <!-- Toast message in detail activity for when inventory level gets too high [CHAR LIMIT=NONE] -->
+    <string name="too_much_inventory">Is this much inventory really required?</string>
+
+    <!-- Toast message in detail activity for when inventory level gets too low [CHAR LIMIT=NONE] -->
+    <string name="not_enough_inventory">You need more inventory to sell this oil</string>
+
+    <!-- Toast message in detail activity for when inventory level gets too low [CHAR LIMIT=NONE] -->
+    <string name="low_inventory">Low inventory.  Please re-order.</string>
+</resources>
+
+
+
+
+
+
+
+<!--&lt;!&ndash; Subtitle text for the empty view that prompts the user to add a pet [CHAR LIMIT=50] &ndash;&gt;-->
+<!--<string name="empty_view_subtitle_text">Get started by adding a pet</string>-->
+
+
+
+
+

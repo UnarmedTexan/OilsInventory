@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">@android:color/holo_green_light</color>
+    <color name="colorPrimaryDark">@android:color/holo_green_dark</color>
+    <color name="colorAccent">@android:color/holo_green_light</color>
+
+    <!-- Text color used for ListView divider -->
+    <color name="divider">#BDBDBD</color>
+
+    <!-- Text color used for book author(s) and description -->
+    <color name="secondary_text">#757575</color>
+
+    <!-- Text color used for book title -->
+    <color name="primary_text">#212121</color>
+
+
+    <!-- Primary color for the editor -->
+    <color name="editorColorPrimary">#FF4081</color>
+
+    <!-- Primary dark color for the editor -->
+    <color name="editorColorPrimaryDark">#C2185B</color>
+</resources>

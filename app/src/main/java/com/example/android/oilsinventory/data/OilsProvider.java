@@ -208,7 +208,7 @@ public class OilsProvider extends ContentProvider{
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         // Track the number of rows that were deleted
         int rowsDeleted;
-        // Get writeable database
+        // Get writable database
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         switch (match) {

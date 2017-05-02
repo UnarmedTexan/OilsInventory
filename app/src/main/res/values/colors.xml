@@ -7,16 +7,19 @@
     <!-- Text color used for ListView divider -->
     <color name="divider">#BDBDBD</color>
 
-    <!-- Text color used for book author(s) and description -->
+    <!-- Text color used for oil quantity and price -->
     <color name="secondary_text">#757575</color>
 
-    <!-- Text color used for book title -->
+    <!-- Text color used name of oil -->
     <color name="primary_text">#212121</color>
 
 
+    <!-- Accent color used for the editor -->
+    <color name="editorColorAccent">#9C4DCC</color>
+
     <!-- Primary color for the editor -->
-    <color name="editorColorPrimary">#FF4081</color>
+    <color name="editorColorPrimary">#6A1B9A</color>
 
     <!-- Primary dark color for the editor -->
-    <color name="editorColorPrimaryDark">#C2185B</color>
+    <color name="editorColorPrimaryDark">#38006B</color>
 </resources>

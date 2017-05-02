@@ -38,7 +38,7 @@ public class OilsContract {
         // The content URI to access the oil data in the provider
         public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_OILS);
 
-        /** Name of database table for oils */
+        // Name of database table for oils
         public final static String TABLE_NAME = "oils";
 
         /**
@@ -85,9 +85,7 @@ public class OilsContract {
          */
         public final static String COLUMN_OIL_PRICE = "price";
 
-        /**
-         * Possible values for the size of the oil bottle.
-         */
+        // Possible values for the size of the oil bottle.
         public static final int FIFTEEN_ML = 0;
         public static final int FIVE_ML = 1;
 
@@ -110,5 +108,4 @@ public class OilsContract {
             return true;
         }
     }
-
 }

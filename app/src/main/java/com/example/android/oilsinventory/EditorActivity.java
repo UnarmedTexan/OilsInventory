@@ -108,7 +108,7 @@ public class EditorActivity extends AppCompatActivity implements
     private Button mButtonSelectPicture;
     // ImageView to display an image of the particular essential oil bottle
     private ImageView mImageView;
-    private static final String FILE_PROVIDER_AUTHORITY = "com.example.android.oilsinventory";
+    private static final String FILE_PROVIDER_AUTHORITY = "com.example.android.oilsinventory.fileprovider";
 
     private Uri mImageUri;
     private static final String STATE_URI = "STATE_URI";
@@ -360,7 +360,7 @@ public class EditorActivity extends AppCompatActivity implements
         String quantityString;
         String initialQuantityString = initialQty.getText().toString().trim();
 
-        if (mImageUri.toString() == null) {
+        if (mImageUri == null) {
             imageString = null;
         }else{
             imageString = mImageUri.toString();
@@ -638,6 +638,7 @@ public class EditorActivity extends AppCompatActivity implements
     }
 
     public void takePicture(View view) {
+
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         try {

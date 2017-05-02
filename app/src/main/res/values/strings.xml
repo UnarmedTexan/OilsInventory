@@ -17,12 +17,6 @@
     <!-- Label for oil name field in the editor [CHAR LIMIT=30] -->
     <string name="label_oil_name">ESSENTIAL OIL</string>
 
-    <!-- Text hint for name field in the editor [CHAR LIMIT=30] -->
-    <string name="hint_oil_name">Enter oil (i.e. Lavender)</string>
-
-    <!-- Text hint for name field in the editor [CHAR LIMIT=30] -->
-    <string name="oil_name">Lavender</string>
-
     <!-- Label for size of the oil bottle in the editor [CHAR LIMIT=20] -->
     <string name="size_bottle">SIZE BOTTLE</string>
 
@@ -32,22 +26,44 @@
     <!-- Label for dropdown menu option if the size bottle is 5ml [CHAR LIMIT=5] -->
     <string name="size_five">5ml</string>
 
-    <!-- Label for quantity of oil inventory [CHAR LIMIT=10] -->
+    <!-- Label for quantity of initial oil inventory [CHAR LIMIT=10] -->
     <string name="label_quantity">QUANTITY</string>
 
+    <!-- Label for quantity of oil inventory [CHAR LIMIT=10] -->
+    <string name="label_in_stock">IN STOCK</string>
+
     <!-- Label for price of oil [CHAR LIMIT=10] -->
-    <string name="label_price">PRICE:</string>
+    <string name="label_price">PRICE</string>
+
+    <!-- Label for sold inventory [CHAR LIMIT=10] -->
+    <string name="label_sold">SOLD</string>
+
+    <!-- Label for received inventory [CHAR LIMIT=10] -->
+    <string name="label_received">RECEIVED</string>
 
     <!-- Text for the initial quantity display [CHAR LIMIT=5] -->
     <string name="initial_quantity_value">0</string>
 
-    <!-- Button text for adding an image [CHAR LIMIT=10] -->
-    <string name="add_image">ADD IMAGE</string>
+    <!-- Button text for adding an image from teh gallery [CHAR LIMIT=10] -->
+    <string name="select_picture">SELECT PICTURE</string>
+
+    <!-- Button text for adding an image using the camera [CHAR LIMIT=10] -->
+    <string name="take_picture">TAKE PICTURE</string>
+
+    <!-- Button text for updating oil quantity [CHAR LIMIT=20] -->
+    <string name="update_oil">UPDATE</string>
 
     <!-- Button text for placing an order [CHAR LIMIT=20] -->
     <string name="place_order">PLACE AN ORDER</string>
 
+    <!-- Text hint for name field in the editor [CHAR LIMIT=30] -->
+    <string name="hint_oil_name">Enter oil (i.e. Lavender)</string>
 
+    <!-- Text hint for initial oil quantity editor [CHAR LIMIT=30] -->
+    <string name="hint_initial_quantity">Enter quantity</string>
+
+    <!-- Text hint for EditText fields for received & sold oils in the editor [CHAR LIMIT=30] -->
+    <string name="hint_oil_quantity">Enter</string>
 
     <!-- Text hint for price of a bottle in the editor [CHAR LIMIT=30] -->
     <string name="hint_price_bottle">$ 0.00</string>
@@ -55,8 +71,7 @@
     <!-- Units for weight of the pet (kilograms) [CHAR LIMIT=5] -->
     <string name="unit_bottle_price">per bottle</string>
 
-
-    <!-- Title text for the empty view, which describes the empty dog house image [CHAR LIMIT=50] -->
+    <!-- Title text for the empty view, which describes the empty dog house image [CHAR LIMIT=50]-->
     <string name="empty_view_title_text">It\'s about time to order some oils...</string>
 
     <!-- Title for the activity to add a new oil [CHAR LIMIT=20] -->
@@ -67,18 +82,6 @@
 
     <!-- Title for the activity displaying oil details [CHAR LIMIT=20] -->
     <string name="details_activity_title">Essential Oil Details</string>
-
-    <!-- Toast message in editor when new oil has been successfully inserted [CHAR LIMIT=NONE] -->
-    <string name="editor_insert_oil_successful">Oil saved</string>
-
-    <!-- Toast message in editor when new oil has failed to be inserted [CHAR LIMIT=NONE] -->
-    <string name="editor_insert_oil_failed">Error with saving oil</string>
-
-    <!-- Toast message in editor when current oil was successfully updated [CHAR LIMIT=NONE] -->
-    <string name="editor_update_oil_successful">Oil updated</string>
-
-    <!-- Toast message in editor when current oil has failed to be updated [CHAR LIMIT=NONE] -->
-    <string name="editor_update_oil_failed">Error with updating oil</string>
 
     <!-- Dialog message when user is leaving editor but hasn't saved changes [CHAR LIMIT=NONE] -->
     <string name="unsaved_changes_dialog_msg">Discard changes and quit editing?</string>
@@ -104,27 +107,31 @@
     <!-- Toast message in editor when current oil has failed to be deleted [CHAR LIMIT=NONE] -->
     <string name="editor_delete_oil_failed">Error with deleting oil</string>
 
-    <!-- Toast message in detail activity for when inventory level gets too high [CHAR LIMIT=NONE] -->
+    <!-- Toast message in editor activity for high inventory level warning [CHAR LIMIT=NONE] -->
     <string name="too_much_inventory">Is this much inventory really required?</string>
 
-    <!-- Toast message in detail activity for when inventory level gets too low [CHAR LIMIT=NONE] -->
+    <!-- Toast message in editor & listView activity for no inventory warning [CHAR LIMIT=NONE] -->
     <string name="not_enough_inventory">You need more inventory to sell this oil</string>
 
-    <!-- Toast message in detail activity for when inventory level gets too low [CHAR LIMIT=NONE] -->
+    <!-- Toast message in editor activity for low inventory warning [CHAR LIMIT=NONE] -->
     <string name="low_inventory">Low inventory.  Please re-order.</string>
+
+    <!-- Toast message in editor when new oil has been successfully inserted [CHAR LIMIT=NONE] -->
+    <string name="editor_insert_oil_successful">Oil saved</string>
+
+    <!-- Toast message in editor when new oil has failed to be inserted [CHAR LIMIT=NONE] -->
+    <string name="editor_insert_oil_failed">Error with saving oil</string>
+
+    <!-- Toast message in editor when current oil was successfully updated [CHAR LIMIT=NONE] -->
+    <string name="editor_update_oil_successful">Oil updated</string>
+
+    <!-- Toast message in editor when current oil has failed to be updated [CHAR LIMIT=NONE] -->
+    <string name="editor_update_oil_failed">Error with updating oil</string>
 
     <!-- Email address for submitting oil order [CHAR LIMIT=NONE] -->
     <string name="order_email">mark@mtmagic.com</string>
 </resources>
 
-
-
-
-
-
-
-<!--&lt;!&ndash; Subtitle text for the empty view that prompts the user to add a pet [CHAR LIMIT=50] &ndash;&gt;-->
-<!--<string name="empty_view_subtitle_text">Get started by adding a pet</string>-->
 
 
 

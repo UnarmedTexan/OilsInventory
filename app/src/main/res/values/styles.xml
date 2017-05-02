@@ -14,7 +14,7 @@
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">1</item>
         <item name="android:paddingTop">16dp</item>
-        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:textColor">@color/editorColorAccent</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textAppearance">?android:textAppearanceSmall</item>
     </style>
@@ -42,7 +42,7 @@
     <style name="EditorTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/editorColorPrimary</item>
         <item name="colorPrimaryDark">@color/editorColorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/editorColorAccent</item>
     </style>
 
 </resources>

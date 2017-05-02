@@ -7,8 +7,10 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
+
+        <!-- Layout capturing and setting the product image -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -29,7 +31,7 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_margin="8dp"
                     android:onClick="selectPicture"
-                    android:text="select picture" />
+                    android:text="@string/select_picture" />
 
                 <Button
                     android:id="@+id/take_image"
@@ -38,7 +40,7 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_margin="8dp"
                     android:onClick="takePicture"
-                    android:text="take picture" />
+                    android:text="@string/take_picture" />
             </LinearLayout>
 
             <ImageView
@@ -50,6 +52,7 @@
                 android:src="@drawable/no_image_available" />
         </LinearLayout>
 
+        <!-- Layout naming the oil -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -138,10 +141,12 @@
             </RelativeLayout>
         </LinearLayout>
 
+        <!-- Layout for entering quantity -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <!-- Layout for initial oil quantity.  Visible for adding new oil -->
             <LinearLayout
                 android:id="@+id/initial_inventory"
                 android:layout_width="match_parent"
@@ -152,7 +157,7 @@
                 <!-- Label for name of oil-->
                 <TextView
                     style="@style/CategoryStyle"
-                    android:text="QUANTITY" />
+                    android:text="@string/label_quantity" />
 
                 <!-- Input field for name of oil -->
                 <EditText
@@ -160,10 +165,11 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:hint="Enter quantity"
+                    android:hint="@string/hint_initial_quantity"
                     android:inputType="number" />
             </LinearLayout>
 
+            <!-- Layout for modifying oil quantity.  Visible for editing an oil -->
             <LinearLayout
                 android:id="@+id/update_inventory"
                 android:layout_width="match_parent"
@@ -179,7 +185,6 @@
                     android:layout_weight="1"
                     android:orientation="vertical">
 
-
                     <TextView
                         style="@style/CategoryStyle"
                         android:layout_width="wrap_content"
@@ -187,7 +192,7 @@
                         android:layout_gravity="center"
                         android:layout_margin="0dp"
                         android:padding="0dp"
-                        android:text="IN STOCK" />
+                        android:text="@string/label_in_stock" />
 
                     <TextView
                         android:id="@+id/oil_quantity"
@@ -212,16 +217,15 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="SOLD" />
+                        android:text="@string/label_sold" />
 
                     <EditText
                         android:id="@+id/edit_quantity_sold"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:hint="Enter"
+                        android:hint="@string/hint_oil_quantity"
                         android:inputType="number" />
-
                 </LinearLayout>
 
                 <Button
@@ -232,7 +236,7 @@
                     android:layout_margin="8dp"
                     android:layout_weight="0"
                     android:onClick="updateQty"
-                    android:text="update" />
+                    android:text="@string/update_oil" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -246,14 +250,14 @@
                         style="@style/CategoryStyle"
                         android:layout_width="wrap_content"
                         android:layout_gravity="center"
-                        android:text="RECEIVED" />
+                        android:text="@string/label_received" />
 
                     <EditText
                         android:id="@+id/edit_quantity_received"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:hint="Enter"
+                        android:hint="@string/hint_oil_quantity"
                         android:inputType="number" />
                 </LinearLayout>
             </LinearLayout>
@@ -265,7 +269,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_margin="8dp"
                 android:onClick="orderOils"
-                android:text="PLACE AN ORDER" />
+                android:text="@string/place_order" />
 
     </LinearLayout>
 </ScrollView>

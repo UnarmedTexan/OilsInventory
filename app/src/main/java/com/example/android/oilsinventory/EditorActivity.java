@@ -1,5 +1,7 @@
 package com.example.android.oilsinventory;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentValues;
@@ -7,16 +9,30 @@ import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
+import android.provider.OpenableColumns;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -28,6 +44,16 @@ import android.widget.Toast;
 
 import com.example.android.oilsinventory.data.OilsContract.OilsEntry;
 
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
+
 
 /**
  * Created by Mark on 4/18/2017.
@@ -35,6 +61,8 @@ import com.example.android.oilsinventory.data.OilsContract.OilsEntry;
 
 public class EditorActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
+
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     // Identifier for the oil data loader
     private static final int EXISTING_OIL_LOADER = 0;
@@ -45,6 +73,9 @@ public class EditorActivity extends AppCompatActivity implements
     // EditText field to enter the name of the essential oil
     private EditText mNameEditText;
 
+    // EditText field to enter inventory received
+    private EditText initialQty;
+
     // TextView field to display the quantity of bottles
     private TextView mQuantityTextView;
 
@@ -52,22 +83,40 @@ public class EditorActivity extends AppCompatActivity implements
     private Button updateQty;
 
     // EditText field to enter inventory received
-    private EditText receivedQty = (EditText) findViewById(R.id.edit_quantity_received);
+    private EditText receivedQty;
+
 
     // EditText field to enter inventory sold
-    private EditText soldQty = (EditText) findViewById(R.id.edit_quantity_sold);
+    private EditText soldQty;
 
     // Global variable for tracking increment and decrement of oil bottle quantity.
-    private int oilQuantity = 0;
+    // private int oilQuantity = 0;
 
     // EditText field to enter the price of the essential oil
     private EditText mPriceEditText;
 
-    // ImageView to display an image of the particular essential oil bottle
-    private ImageView mOilImageView;
-
     // Spinner to select the size of the bottle
     private Spinner mSizeSpinner;
+
+    private static final int PICK_IMAGE_REQUEST = 0;
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int MY_PERMISSIONS_REQUEST = 2;
+
+    private boolean isGalleryPicture = false;
+    private Bitmap mBitmap;
+    private Button mButtonTakePicture;
+    private Button mButtonSelectPicture;
+    // ImageView to display an image of the particular essential oil bottle
+    private ImageView mImageView;
+    private static final String FILE_PROVIDER_AUTHORITY = "com.example.android.oilsinventory";
+
+    private Uri mImageUri;
+    private static final String STATE_URI = "STATE_URI";
+
+    private static final String JPEG_FILE_PREFIX = "IMG_";
+    private static final String JPEG_FILE_SUFFIX = ".jpg";
+
+    private static final String CAMERA_DIR = "/dcim/";
 
     /**
      * Size of bottle. The possible valid values are (in OilContract.java file):
@@ -100,31 +149,46 @@ public class EditorActivity extends AppCompatActivity implements
             setTitle(R.string.editor_activity_title_new_oil);
 
             // Invalidate the options menu, so the "Delete" menu option can be hidden.
+            View updateQuantity = findViewById(R.id.update_inventory);
+            updateQuantity.setVisibility(View.INVISIBLE);
             invalidateOptionsMenu();
 
         } else {
             setTitle(getString(R.string.editor_activity_title_edit_oil));
-
+            View initialQuantity = findViewById(R.id.initial_inventory);
+            initialQuantity.setVisibility(View.INVISIBLE);
             getLoaderManager().initLoader(EXISTING_OIL_LOADER, null, this);
         }
 
         // Find all relevant views that we will need to read user input from
         mNameEditText = (EditText) findViewById(R.id.edit_oil_name);
+        initialQty = (EditText) findViewById(R.id.enter_initial_quantity);
         updateQty = (Button) findViewById(R.id.update_quantity);
         receivedQty = (EditText) findViewById(R.id.edit_quantity_received);
         soldQty = (EditText) findViewById(R.id.edit_quantity_sold);
         mPriceEditText = (EditText) findViewById(R.id.edit_oil_price);
         mSizeSpinner = (Spinner) findViewById(R.id.spinner_size);
+        mButtonTakePicture = (Button) findViewById(R.id.take_image);
+        mButtonSelectPicture = (Button) findViewById(R.id.add_image);
 
         // OnTouchListeners for each input field
         mNameEditText.setOnTouchListener(mTouchListener);
+        initialQty.setOnTouchListener(mTouchListener);
         updateQty.setOnTouchListener(mTouchListener);
         receivedQty.setOnTouchListener(mTouchListener);
         soldQty.setOnTouchListener(mTouchListener);
         mPriceEditText.setOnTouchListener(mTouchListener);
         mSizeSpinner.setOnTouchListener(mTouchListener);
+        mButtonTakePicture.setOnTouchListener(mTouchListener);
+        mButtonSelectPicture.setOnTouchListener(mTouchListener);
 
         setupSpinner();
+
+        // Image items
+        mImageView = (ImageView) findViewById(R.id.oil_image);
+        mButtonTakePicture.setEnabled(false);
+
+        requestPermissions();
     }
 
     // Method is called when the Update button is clicked.
@@ -159,21 +223,13 @@ public class EditorActivity extends AppCompatActivity implements
                     Toast.LENGTH_LONG).show();
         } else {
             quantity = quantity + mReceived - mSold;
-            mQuantityTextView.setText(quantity);
+            mQuantityTextView.setText("" + quantity);
             // Notify user of a low inventory
             if (quantity < 5) {
                 Toast.makeText(EditorActivity.this, getString(R.string.low_inventory),
                         Toast.LENGTH_LONG).show();
             }
         }
-        oilQuantity = quantity;
-        displayQuantity(oilQuantity);
-    }
-
-    // This method displays the given quantity value on the screen.
-    private void displayQuantity(int quantityOfOil) {
-        mQuantityTextView = (TextView) findViewById(R.id.oil_quantity);
-        mQuantityTextView.setText("" + quantityOfOil);
     }
 
     // Setup the dropdown spinner that allows the user to select the oil bottle size.
@@ -217,7 +273,7 @@ public class EditorActivity extends AppCompatActivity implements
         }
         String[] projection = {
                 OilsEntry._ID,
-                OilsEntry.COLUMN_OIL_IMAGE,//
+                OilsEntry.COLUMN_OIL_IMAGE,
                 OilsEntry.COLUMN_OIL_NAME,
                 OilsEntry.COLUMN_OIL_SIZE,
                 OilsEntry.COLUMN_OIL_QTY,
@@ -234,6 +290,9 @@ public class EditorActivity extends AppCompatActivity implements
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+
+        mQuantityTextView = (TextView) findViewById(R.id.oil_quantity);
+
         // Bail early if the cursor is null or there is less than 1 row in the cursor
         if (cursor == null || cursor.getCount() < 1) {
             return;
@@ -250,27 +309,33 @@ public class EditorActivity extends AppCompatActivity implements
             int quantityColumnIndex = cursor.getColumnIndex(OilsEntry.COLUMN_OIL_QTY);
 
             // Extract out the value from the Cursor for the given column index
-            String image = cursor.getString(imageColumnIndex);
+            Uri image = Uri.parse(cursor.getString(imageColumnIndex));
             String name = cursor.getString(nameColumnIndex);
             int size = cursor.getInt(sizeColumnIndex);
             float price = cursor.getFloat(priceColumnIndex);
-            int quantity = cursor.getInt(quantityColumnIndex);
+            String quantity = cursor.getString(quantityColumnIndex);
+
+            Log.i("ImageUri", "Image Uri is " + image.toString());
+
+            // Get the image from the Uri
+            Bitmap bitmap = getBitmapFromUri(image);
 
             // Update the views on the screen with the values from the database
+            mImageView.setImageBitmap(bitmap);
             mNameEditText.setText(name);
             mPriceEditText.setText(Float.toString(price));
-            mQuantityTextView.setText(Integer.toString(quantity));
+            mQuantityTextView.setText(quantity);
 
             // size is a dropdown spinner
             switch (size) {
                 case OilsEntry.FIFTEEN_ML:
-                    mSizeSpinner.setSelection(1);
+                    mSizeSpinner.setSelection(0);
                     break;
                 case OilsEntry.FIVE_ML:
-                    mSizeSpinner.setSelection(2);
+                    mSizeSpinner.setSelection(1);
                     break;
                 default:
-                    mSizeSpinner.setSelection(1);
+                    mSizeSpinner.setSelection(0);
                     break;
             }
         }
@@ -279,7 +344,7 @@ public class EditorActivity extends AppCompatActivity implements
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         // If the loader is invalidated, clear out all the data from the input fields.
-        //mOilImageView.setImageDrawable("");
+        mImageView.setImageResource(R.drawable.no_image_available);
         mNameEditText.setText("");
         mSizeSpinner.setSelection(0); // Select "15ml" bottle
         mPriceEditText.setText("0");
@@ -289,8 +354,23 @@ public class EditorActivity extends AppCompatActivity implements
     // Save user input from activity_editor and save new oil in database.
     private void saveOil() {
         // Read from input fields & trim
+        String imageString;
         String nameString = mNameEditText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
+        String quantityString;
+        String initialQuantityString = initialQty.getText().toString().trim();
+
+        if (mImageUri.toString() == null) {
+            imageString = null;
+        }else{
+            imageString = mImageUri.toString();
+        }
+
+        if (!TextUtils.isEmpty(initialQuantityString)){
+            quantityString = initialQuantityString;
+        }else{
+            quantityString = mQuantityTextView.getText().toString().trim();
+        }
 
         // Verify if this is supposed to be a new oil and EditText fields are empty
         if (mCurrentOilUri == null && TextUtils.isEmpty(nameString)
@@ -299,12 +379,11 @@ public class EditorActivity extends AppCompatActivity implements
         }
 
         // Create a ContentValues object where column names are the keys,
-        // and pet attributes from the editor are the values.
+        // and oil attributes from the editor are the values.
         ContentValues values = new ContentValues();
-        values.put(OilsEntry.COLUMN_OIL_IMAGE, R.drawable.no_image_available);
         values.put(OilsEntry.COLUMN_OIL_NAME, nameString);
         values.put(OilsEntry.COLUMN_OIL_SIZE, mSize);
-        values.put(OilsEntry.COLUMN_OIL_QTY, oilQuantity);
+        values.put(OilsEntry.COLUMN_OIL_QTY, quantityString);
 
         // Parse string into float, but only if there's input from the user. Use 0 by default.
         float price = 0;
@@ -312,6 +391,12 @@ public class EditorActivity extends AppCompatActivity implements
             price = Float.parseFloat(priceString);
         }
         values.put(OilsEntry.COLUMN_OIL_PRICE, price);
+
+        if (imageString != null){
+            values.put(OilsEntry.COLUMN_OIL_IMAGE, imageString);
+        }else{
+            values.put(OilsEntry.COLUMN_OIL_IMAGE, R.drawable.no_image_available);
+        }
 
         // Determine if this is a new or existing oil by checking if mCurrentOilUri is null
         if (mCurrentOilUri == null) {
@@ -486,4 +571,301 @@ public class EditorActivity extends AppCompatActivity implements
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
+
+    public void orderOils(View view){
+        String oilName = mNameEditText.getText().toString().trim();
+
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+        emailIntent.setData(Uri.parse("mailto:" + getText(R.string.order_email)));
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Order " + oilName);
+        if (emailIntent.resolveActivity(getPackageManager()) !=null){
+            startActivity(emailIntent.createChooser(emailIntent, "Send Email"));
+        }
+    }
+
+
+    public void requestPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ) {
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE) ||
+                    ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST);
+            }
+        } else {
+            mButtonTakePicture.setEnabled(true);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                        && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    mButtonTakePicture.setEnabled(true);
+                }else {
+                    Toast.makeText(getApplicationContext(), "Permission Denied",
+                            Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+        }
+    }
+
+    public void selectPicture (View view) {
+        Intent intent;
+        Log.e(LOG_TAG, "While is set and the ifs are worked through.");
+
+        if (Build.VERSION.SDK_INT < 19) {
+            intent = new Intent(Intent.ACTION_GET_CONTENT);
+        } else {
+            intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+        }
+
+        // Show only images, no videos or anything else
+        Log.e(LOG_TAG, "Check write to external permissions");
+
+        intent.setType("image/*");
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+    }
+
+    public void takePicture(View view) {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        try {
+            File f = createImageFile();
+
+            Log.d(LOG_TAG, "File: " + f.getAbsolutePath());
+
+            mImageUri = FileProvider.getUriForFile(
+                    this, FILE_PROVIDER_AUTHORITY, f);
+
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
+
+            // Solution taken from http://stackoverflow.com/a/18332000/3346625
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+                List<ResolveInfo> resInfoList = getPackageManager()
+                        .queryIntentActivities(takePictureIntent,
+                                PackageManager.MATCH_DEFAULT_ONLY);
+
+                for (ResolveInfo resolveInfo : resInfoList) {
+                    String packageName = resolveInfo.activityInfo.packageName;
+                    grantUriPermission(packageName, mImageUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION |
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                }
+            }
+
+            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        Log.i(LOG_TAG, "Received an \"Activity Result\"");
+        // The ACTION_OPEN_DOCUMENT intent was sent with the request code READ_REQUEST_CODE.
+        // If the request code seen here doesn't match, it's the response to some other intent,
+        // and the below code shouldn't run at all.
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
+            // The document selected by the user won't be returned in the intent.
+            // Instead, a URI to that document will be contained in the return intent
+            // provided to this method as a parameter.  Pull that uri using "resultData.getData()"
+
+            if (resultData != null) {
+                mImageUri = resultData.getData();
+                Log.i(LOG_TAG, "Uri: " + mImageUri.toString());
+
+                mBitmap = getBitmapFromUri(mImageUri);
+                mImageView.setImageBitmap(mBitmap);
+                mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                isGalleryPicture = true;
+            }
+        } else if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
+            Log.i(LOG_TAG, "Uri: " + mImageUri.toString());
+
+            mBitmap = getBitmapFromUri(mImageUri);
+            mImageView.setImageBitmap(mBitmap);
+            mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            isGalleryPicture = false;
+        }
+    }
+
+    private Bitmap getBitmapFromUri(Uri uri) {
+        ParcelFileDescriptor parcelFileDescriptor = null;
+        try {
+            parcelFileDescriptor =
+                    getContentResolver().openFileDescriptor(uri, "r");
+            FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+            Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+            parcelFileDescriptor.close();
+            return image;
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Failed to load image.", e);
+            return null;
+        } finally {
+            try {
+                if (parcelFileDescriptor != null) {
+                    parcelFileDescriptor.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e(LOG_TAG, "Error closing ParcelFile Descriptor");
+            }
+        }
+    }
+
+
+
+
+
+
+
+    public Uri getShareableImageUri() {
+        Uri imageUri;
+
+        if (isGalleryPicture) {
+            String filename = getFilePath();
+            saveBitmapToFile(getCacheDir(), filename, mBitmap, Bitmap.CompressFormat.JPEG, 100);
+            File imageFile = new File(getCacheDir(), filename);
+
+            imageUri = FileProvider.getUriForFile(
+                    this, FILE_PROVIDER_AUTHORITY, imageFile);
+
+        } else {
+            imageUri = mImageUri;
+        }
+
+        return imageUri;
+    }
+
+    public String getFilePath() {
+        /*
+         * Get the file's content URI from the incoming Intent,
+         * then query the server app to get the file's display name
+         * and size.
+         */
+        Cursor returnCursor =
+                getContentResolver().query(mImageUri, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null);
+
+        /*
+         * Get the column indexes of the data in the Cursor,
+         * move to the first row in the Cursor, get the data,
+         * and display it.
+         */
+        returnCursor.moveToFirst();
+        String fileName = returnCursor.getString(returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+
+        return fileName;
+    }
+
+    /*
+    * Bitmap.CompressFormat can be PNG,JPEG or WEBP.
+    *
+    * quality goes from 1 to 100. (Percentage).
+    *
+    * dir you can get from many places like Environment.getExternalStorageDirectory() or mContext.getFilesDir()
+    * depending on where you want to save the image.
+    */
+    public boolean saveBitmapToFile(File dir, String fileName, Bitmap bm,
+                                    Bitmap.CompressFormat format, int quality) {
+        File imageFile = new File(dir, fileName);
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(imageFile);
+            bm.compress(format, quality, fos);
+            fos.close();
+
+            return true;
+        } catch (IOException e) {
+            Log.e("app", e.getMessage());
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+        return false;
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = JPEG_FILE_PREFIX + timeStamp + "_";
+        File albumF = getAlbumDir();
+        File imageF = File.createTempFile(imageFileName, JPEG_FILE_SUFFIX, albumF);
+        return imageF;
+    }
+
+    private File getAlbumDir() {
+        File storageDir = null;
+
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+
+            storageDir = new File(Environment.getExternalStorageDirectory()
+                    + CAMERA_DIR
+                    + getString(R.string.app_name));
+
+            Log.d(LOG_TAG, "Dir: " + storageDir);
+
+            if (storageDir != null) {
+                if (!storageDir.mkdirs()) {
+                    if (!storageDir.exists()) {
+                        Log.d(LOG_TAG, "failed to create directory");
+                        return null;
+                    }
+                }
+            }
+
+        } else {
+            Log.v(getString(R.string.app_name), "External storage is not mounted READ/WRITE.");
+        }
+        return storageDir;
+    }
+
+
+    // If hardware is rotated, ensure image is not lost before prior to saving
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if (mImageUri != null)
+            outState.putString(STATE_URI, mImageUri.toString());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if (savedInstanceState.containsKey(STATE_URI) &&
+                !savedInstanceState.getString(STATE_URI).equals("")) {
+            mImageUri = Uri.parse(savedInstanceState.getString(STATE_URI));
+
+            ViewTreeObserver viewTreeObserver = mImageView.getViewTreeObserver();
+            viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    mImageView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    mImageView.setImageBitmap(getBitmapFromUri(mImageUri));
+                }
+            });
+        }
+    }
+
+
 }

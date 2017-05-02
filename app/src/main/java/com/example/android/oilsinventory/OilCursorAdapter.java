@@ -5,16 +5,18 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.widget.CursorAdapter;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.oilsinventory.data.OilsContract.OilsEntry;
+
+import java.text.NumberFormat;
 
 
 /**
@@ -80,9 +82,19 @@ public class OilCursorAdapter extends CursorAdapter {
 
         // Update the TextViews with the attributes for the current oil
         nameTextView.setText(oilName);
-        sizeTextView.setText(oilSize);
+
+        String mOilSize = "";
+        switch (oilSize){
+            case "0":
+                mOilSize = "15ml";
+                break;
+            case "1":
+                mOilSize = "5ml";
+                break;
+        }
+        sizeTextView.setText(mOilSize);
         quantityTextView.setText(oilQuantity);
-        priceTextView.setText(Double.toString(oilPrice));
+        priceTextView.setText(NumberFormat.getCurrencyInstance().format(oilPrice));
 
         final Uri oilUri = ContentUris.withAppendedId(OilsEntry.CONTENT_URI,
                 Long.parseLong(idColumn));
@@ -98,21 +110,26 @@ public class OilCursorAdapter extends CursorAdapter {
                 }else {
                     inventoryOil = Integer.parseInt(quantityTextView.getText().toString());
                 }
-
-                if (inventoryOil > 0){
+                if (inventoryOil == 0){
+                    Toast.makeText(view.getContext(),
+                            view.getContext().getString(R.string.not_enough_inventory),
+                            Toast.LENGTH_SHORT).show();
+                }else if (inventoryOil > 0){
                     inventoryOil = inventoryOil - 1;
-                    if (inventoryOil == 0){
+                    if (inventoryOil < 5){
                         Toast.makeText(view.getContext(),
                                 view.getContext().getString(R.string.low_inventory),
                                 Toast.LENGTH_SHORT).show();
                     }
+                    quantityTextView.setText(String.valueOf(inventoryOil));
+
                     // Create a ContentValues object where column names are the keys,
                     // and pet attributes from the editor are the values.
                     ContentValues values = new ContentValues();
                     values.put(OilsEntry.COLUMN_OIL_IMAGE, oilImage);
                     values.put(OilsEntry.COLUMN_OIL_NAME, oilName);
                     values.put(OilsEntry.COLUMN_OIL_SIZE, oilSize);
-                    values.put(OilsEntry.COLUMN_OIL_QTY, oilQuantity);
+                    values.put(OilsEntry.COLUMN_OIL_QTY, inventoryOil);
 
                     int rowsUpdated = view.getContext().getContentResolver().update(oilUri,
                             values, null, null);
@@ -122,6 +139,8 @@ public class OilCursorAdapter extends CursorAdapter {
                                 Toast.LENGTH_LONG).show();
                     }
                 }
+
+
             }
         });
     }

@@ -112,6 +112,9 @@
 
     <!-- Toast message in detail activity for when inventory level gets too low [CHAR LIMIT=NONE] -->
     <string name="low_inventory">Low inventory.  Please re-order.</string>
+
+    <!-- Email address for submitting oil order [CHAR LIMIT=NONE] -->
+    <string name="order_email">mark@mtmagic.com</string>
 </resources>
 
 

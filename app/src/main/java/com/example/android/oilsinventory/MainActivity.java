@@ -119,8 +119,8 @@ public class MainActivity extends AppCompatActivity implements
         values.put(OilsEntry.COLUMN_OIL_IMAGE, R.drawable.no_image_available);
         values.put(OilsEntry.COLUMN_OIL_NAME, "Lavender");
         values.put(OilsEntry.COLUMN_OIL_SIZE, OilsEntry.FIFTEEN_ML);
-        values.put(OilsEntry.COLUMN_OIL_QTY, 4);
-        values.put(OilsEntry.COLUMN_OIL_PRICE, "$23.99");
+        values.put(OilsEntry.COLUMN_OIL_QTY, "4");
+        values.put(OilsEntry.COLUMN_OIL_PRICE, 23.99);
 
         // Insert a new row for Lavender essential oil into the provider using the ContentResolver.
         // Use the {@link OilsEntry#CONTENT_URI} to indicate we want to insert into the oils

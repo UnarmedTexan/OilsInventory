@@ -62,7 +62,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
-                        android:text="@string/label_quantity"
+                        android:text="@string/label_list_quantity"
                         android:textColor="@color/secondary_text"
                         android:textSize="12sp"
                         android:textStyle="italic|bold" />
@@ -89,7 +89,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
-                        android:text="@string/label_price"
+                        android:text="@string/label_list_price"
                         android:textColor="@color/secondary_text"
                         android:textSize="12sp"
                         android:textStyle="italic|bold" />

@@ -20,7 +20,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
-import android.provider.OpenableColumns;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
@@ -46,13 +45,11 @@ import com.example.android.oilsinventory.data.OilsContract.OilsEntry;
 
 import java.io.File;
 import java.io.FileDescriptor;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 
 
 /**
@@ -85,12 +82,8 @@ public class EditorActivity extends AppCompatActivity implements
     // EditText field to enter inventory received
     private EditText receivedQty;
 
-
     // EditText field to enter inventory sold
     private EditText soldQty;
-
-    // Global variable for tracking increment and decrement of oil bottle quantity.
-    // private int oilQuantity = 0;
 
     // EditText field to enter the price of the essential oil
     private EditText mPriceEditText;
@@ -104,18 +97,21 @@ public class EditorActivity extends AppCompatActivity implements
 
     private boolean isGalleryPicture = false;
     private Bitmap mBitmap;
+
+    // Button used to access camera
     private Button mButtonTakePicture;
+
+    // Button used to access gallery
     private Button mButtonSelectPicture;
+
     // ImageView to display an image of the particular essential oil bottle
     private ImageView mImageView;
-    private static final String FILE_PROVIDER_AUTHORITY = "com.example.android.oilsinventory.fileprovider";
-
+    private static final String FILE_PROVIDER_AUTHORITY =
+            "com.example.android.oilsinventory.fileprovider";
     private Uri mImageUri;
     private static final String STATE_URI = "STATE_URI";
-
     private static final String JPEG_FILE_PREFIX = "IMG_";
     private static final String JPEG_FILE_SUFFIX = ".jpg";
-
     private static final String CAMERA_DIR = "/dcim/";
 
     /**
@@ -187,7 +183,6 @@ public class EditorActivity extends AppCompatActivity implements
         // Image items
         mImageView = (ImageView) findViewById(R.id.oil_image);
         mButtonTakePicture.setEnabled(false);
-
         requestPermissions();
     }
 
@@ -199,18 +194,22 @@ public class EditorActivity extends AppCompatActivity implements
         // Quantity displayed in the editor TextView for Inventory Quantity
         int quantity = Integer.parseInt(mQuantityTextView.getText().toString().trim());
 
+        // Initialize to hold sold and received inventory quantities
         int mSold;
         int mReceived;
 
         // Retrieve values entered in the EditText for quantity sold and received
         String quantitySold = soldQty.getText().toString().trim();
         String quantityReceived = receivedQty.getText().toString().trim();
+
+        // Verify if no sold EditText input then set to "0", otherwise convert user entry
         if (quantitySold.isEmpty()) {
             mSold = 0;
         } else {
             mSold = Integer.parseInt(soldQty.getText().toString().trim());
         }
 
+        // Verify if no received EditText input then set to "0", otherwise convert user entry
         if (quantityReceived.isEmpty()) {
             mReceived = 0;
         } else {
@@ -353,28 +352,35 @@ public class EditorActivity extends AppCompatActivity implements
 
     // Save user input from activity_editor and save new oil in database.
     private void saveOil() {
-        // Read from input fields & trim
-        String imageString;
-        String nameString = mNameEditText.getText().toString().trim();
-        String priceString = mPriceEditText.getText().toString().trim();
-        String quantityString;
-        String initialQuantityString = initialQty.getText().toString().trim();
 
+        // Set image string to null if no image Uri is found.
+        String imageString;
         if (mImageUri == null) {
             imageString = null;
         }else{
             imageString = mImageUri.toString();
         }
+        // Read from Name and Price input fields & trim
+        String nameString = mNameEditText.getText().toString().trim();
+        String priceString = mPriceEditText.getText().toString().trim();
 
-        if (!TextUtils.isEmpty(initialQuantityString)){
-            quantityString = initialQuantityString;
-        }else{
+        String quantityString;
+
+        if (mQuantityTextView != null){
+            // Quantity from edit oil
             quantityString = mQuantityTextView.getText().toString().trim();
+        }else {
+            // Quantity from initial oil
+            quantityString = initialQty.getText().toString().trim();
         }
 
         // Verify if this is supposed to be a new oil and EditText fields are empty
-        if (mCurrentOilUri == null && TextUtils.isEmpty(nameString)
-                && TextUtils.isEmpty(priceString)) {
+        if (mCurrentOilUri == null && TextUtils.isEmpty(nameString) || TextUtils.isEmpty(priceString)
+                || TextUtils.isEmpty(quantityString) || mImageUri == null)
+        {
+            // no Editable fields have been modified.
+            Toast.makeText(this, "Oil not added to database. Please enter all required information",
+                    Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -392,6 +398,7 @@ public class EditorActivity extends AppCompatActivity implements
         }
         values.put(OilsEntry.COLUMN_OIL_PRICE, price);
 
+        // Use camera or gallery image, otherwise use no image drawable
         if (imageString != null){
             values.put(OilsEntry.COLUMN_OIL_IMAGE, imageString);
         }else{
@@ -572,6 +579,7 @@ public class EditorActivity extends AppCompatActivity implements
         alertDialog.show();
     }
 
+    // create intent to use email for ordering inventory of a particular oil
     public void orderOils(View view){
         String oilName = mNameEditText.getText().toString().trim();
 
@@ -583,7 +591,7 @@ public class EditorActivity extends AppCompatActivity implements
         }
     }
 
-
+    // The following code provided by forum mentor for the purpose of accessing camera and gallery
     public void requestPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ) {
@@ -728,82 +736,6 @@ public class EditorActivity extends AppCompatActivity implements
         }
     }
 
-
-
-
-
-
-
-    public Uri getShareableImageUri() {
-        Uri imageUri;
-
-        if (isGalleryPicture) {
-            String filename = getFilePath();
-            saveBitmapToFile(getCacheDir(), filename, mBitmap, Bitmap.CompressFormat.JPEG, 100);
-            File imageFile = new File(getCacheDir(), filename);
-
-            imageUri = FileProvider.getUriForFile(
-                    this, FILE_PROVIDER_AUTHORITY, imageFile);
-
-        } else {
-            imageUri = mImageUri;
-        }
-
-        return imageUri;
-    }
-
-    public String getFilePath() {
-        /*
-         * Get the file's content URI from the incoming Intent,
-         * then query the server app to get the file's display name
-         * and size.
-         */
-        Cursor returnCursor =
-                getContentResolver().query(mImageUri, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null);
-
-        /*
-         * Get the column indexes of the data in the Cursor,
-         * move to the first row in the Cursor, get the data,
-         * and display it.
-         */
-        returnCursor.moveToFirst();
-        String fileName = returnCursor.getString(returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-
-        return fileName;
-    }
-
-    /*
-    * Bitmap.CompressFormat can be PNG,JPEG or WEBP.
-    *
-    * quality goes from 1 to 100. (Percentage).
-    *
-    * dir you can get from many places like Environment.getExternalStorageDirectory() or mContext.getFilesDir()
-    * depending on where you want to save the image.
-    */
-    public boolean saveBitmapToFile(File dir, String fileName, Bitmap bm,
-                                    Bitmap.CompressFormat format, int quality) {
-        File imageFile = new File(dir, fileName);
-
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(imageFile);
-            bm.compress(format, quality, fos);
-            fos.close();
-
-            return true;
-        } catch (IOException e) {
-            Log.e("app", e.getMessage());
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        }
-        return false;
-    }
-
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -832,13 +764,11 @@ public class EditorActivity extends AppCompatActivity implements
                     }
                 }
             }
-
         } else {
             Log.v(getString(R.string.app_name), "External storage is not mounted READ/WRITE.");
         }
         return storageDir;
     }
-
 
     // If hardware is rotated, ensure image is not lost before prior to saving
     @Override
@@ -867,6 +797,4 @@ public class EditorActivity extends AppCompatActivity implements
             });
         }
     }
-
-
 }

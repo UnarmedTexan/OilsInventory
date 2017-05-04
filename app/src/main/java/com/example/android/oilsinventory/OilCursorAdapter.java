@@ -139,8 +139,6 @@ public class OilCursorAdapter extends CursorAdapter {
                                 Toast.LENGTH_LONG).show();
                     }
                 }
-
-
             }
         });
     }

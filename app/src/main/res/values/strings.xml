@@ -29,11 +29,17 @@
     <!-- Label for quantity of initial oil inventory [CHAR LIMIT=10] -->
     <string name="label_quantity">QUANTITY</string>
 
+    <!-- Label for quantity of oil displayed in list_item.xml [CHAR LIMIT=10] -->
+    <string name="label_list_quantity">QUANTITY:</string>
+
     <!-- Label for quantity of oil inventory [CHAR LIMIT=10] -->
     <string name="label_in_stock">IN STOCK</string>
 
     <!-- Label for price of oil [CHAR LIMIT=10] -->
     <string name="label_price">PRICE</string>
+
+    <!-- Label for price of oil displayed in list_item.xml [CHAR LIMIT=10] -->
+    <string name="label_list_price">PRICE:</string>
 
     <!-- Label for sold inventory [CHAR LIMIT=10] -->
     <string name="label_sold">SOLD</string>

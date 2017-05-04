@@ -365,7 +365,6 @@ public class EditorActivity extends AppCompatActivity implements
         String priceString = mPriceEditText.getText().toString().trim();
 
         String quantityString;
-
         if (mQuantityTextView != null){
             // Quantity from edit oil
             quantityString = mQuantityTextView.getText().toString().trim();

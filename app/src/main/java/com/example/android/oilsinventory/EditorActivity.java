@@ -308,16 +308,16 @@ public class EditorActivity extends AppCompatActivity implements
             int quantityColumnIndex = cursor.getColumnIndex(OilsEntry.COLUMN_OIL_QTY);
 
             // Extract out the value from the Cursor for the given column index
-            Uri image = Uri.parse(cursor.getString(imageColumnIndex));
+            mImageUri = Uri.parse(cursor.getString(imageColumnIndex));
             String name = cursor.getString(nameColumnIndex);
             int size = cursor.getInt(sizeColumnIndex);
             float price = cursor.getFloat(priceColumnIndex);
             String quantity = cursor.getString(quantityColumnIndex);
 
-            Log.i("ImageUri", "Image Uri is " + image.toString());
+            Log.i("ImageUri", "Image Uri is " + mImageUri.toString());
 
             // Get the image from the Uri
-            Bitmap bitmap = getBitmapFromUri(image);
+            Bitmap bitmap = getBitmapFromUri(mImageUri);
 
             // Update the views on the screen with the values from the database
             mImageView.setImageBitmap(bitmap);
@@ -353,16 +353,17 @@ public class EditorActivity extends AppCompatActivity implements
     // Save user input from activity_editor and save new oil in database.
     private void saveOil() {
 
-        // Set image string to null if no image Uri is found.
-        String imageString;
-        if (mImageUri == null) {
-            imageString = null;
-        }else{
-            imageString = mImageUri.toString();
-        }
         // Read from Name and Price input fields & trim
         String nameString = mNameEditText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
+
+        // Set image string to null if no image Uri is found.
+        String imageString;
+        if (mImageUri != null) {
+            imageString = mImageUri.toString();
+        }else{
+            imageString = null;
+        }
 
         String quantityString;
         if (mQuantityTextView != null){
@@ -374,13 +375,24 @@ public class EditorActivity extends AppCompatActivity implements
         }
 
         // Verify if this is supposed to be a new oil and EditText fields are empty
-        if (mCurrentOilUri == null && TextUtils.isEmpty(nameString) || TextUtils.isEmpty(priceString)
-                || TextUtils.isEmpty(quantityString) || mImageUri == null)
+        if (mCurrentOilUri == null &&  imageString == null && TextUtils.isEmpty(nameString)
+                && TextUtils.isEmpty(priceString) && TextUtils.isEmpty(quantityString))
         {
-            // no Editable fields have been modified.
-            Toast.makeText(this, "Oil not added to database. Please enter all required information",
-                    Toast.LENGTH_SHORT).show();
+            // No fields were modified.  Return to Main Activity without creating a new oil.
+            // No need to create ContentValues and no need to do any ContentProvider operations.
             return;
+        }
+
+        // Verify all fields have been completed.  If not, return and notify user to enter all
+        // required information prior to saving
+        if (mCurrentOilUri == null &&  imageString == null || TextUtils.isEmpty(nameString)
+                    || TextUtils.isEmpty(priceString) || TextUtils.isEmpty(quantityString))
+            {
+                // no Editable fields have been modified.
+                Toast.makeText(this, "Oil not added to database. " +
+                                "\n" + "Please enter all required information",
+                        Toast.LENGTH_SHORT).show();
+                return;
         }
 
         // Create a ContentValues object where column names are the keys,
@@ -389,6 +401,7 @@ public class EditorActivity extends AppCompatActivity implements
         values.put(OilsEntry.COLUMN_OIL_NAME, nameString);
         values.put(OilsEntry.COLUMN_OIL_SIZE, mSize);
         values.put(OilsEntry.COLUMN_OIL_QTY, quantityString);
+        values.put(OilsEntry.COLUMN_OIL_IMAGE, imageString);
 
         // Parse string into float, but only if there's input from the user. Use 0 by default.
         float price = 0;
@@ -396,13 +409,6 @@ public class EditorActivity extends AppCompatActivity implements
             price = Float.parseFloat(priceString);
         }
         values.put(OilsEntry.COLUMN_OIL_PRICE, price);
-
-        // Use camera or gallery image, otherwise use no image drawable
-        if (imageString != null){
-            values.put(OilsEntry.COLUMN_OIL_IMAGE, imageString);
-        }else{
-            values.put(OilsEntry.COLUMN_OIL_IMAGE, R.drawable.no_image_available);
-        }
 
         // Determine if this is a new or existing oil by checking if mCurrentOilUri is null
         if (mCurrentOilUri == null) {

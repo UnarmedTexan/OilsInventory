@@ -51,7 +51,6 @@ import java.util.Date;
 import java.util.List;
 
 
-
 /**
  * Created by Mark on 4/18/2017.
  */
@@ -69,6 +68,13 @@ public class EditorActivity extends AppCompatActivity implements
 
     // EditText field to enter the name of the essential oil
     private EditText mNameEditText;
+
+    // Set image string to null if no image Uri is found.
+    private String nameString;
+    private String imageString;
+    private String quantityString;
+    private String priceString;
+
 
     // EditText field to enter inventory received
     private EditText initialQty;
@@ -314,7 +320,6 @@ public class EditorActivity extends AppCompatActivity implements
             float price = cursor.getFloat(priceColumnIndex);
             String quantity = cursor.getString(quantityColumnIndex);
 
-            Log.i("ImageUri", "Image Uri is " + mImageUri.toString());
 
             // Get the image from the Uri
             Bitmap bitmap = getBitmapFromUri(mImageUri);
@@ -354,45 +359,22 @@ public class EditorActivity extends AppCompatActivity implements
     private void saveOil() {
 
         // Read from Name and Price input fields & trim
-        String nameString = mNameEditText.getText().toString().trim();
-        String priceString = mPriceEditText.getText().toString().trim();
+        nameString = mNameEditText.getText().toString().trim();
+        priceString = mPriceEditText.getText().toString().trim();
 
         // Set image string to null if no image Uri is found.
-        String imageString;
         if (mImageUri != null) {
             imageString = mImageUri.toString();
-        }else{
+        } else {
             imageString = null;
         }
 
-        String quantityString;
-        if (mQuantityTextView != null){
+        if (mQuantityTextView != null) {
             // Quantity from edit oil
             quantityString = mQuantityTextView.getText().toString().trim();
-        }else {
+        } else {
             // Quantity from initial oil
             quantityString = initialQty.getText().toString().trim();
-        }
-
-        // Verify if this is supposed to be a new oil and EditText fields are empty
-        if (mCurrentOilUri == null &&  imageString == null && TextUtils.isEmpty(nameString)
-                && TextUtils.isEmpty(priceString) && TextUtils.isEmpty(quantityString))
-        {
-            // No fields were modified.  Return to Main Activity without creating a new oil.
-            // No need to create ContentValues and no need to do any ContentProvider operations.
-            return;
-        }
-
-        // Verify all fields have been completed.  If not, return and notify user to enter all
-        // required information prior to saving
-        if (mCurrentOilUri == null &&  imageString == null || TextUtils.isEmpty(nameString)
-                    || TextUtils.isEmpty(priceString) || TextUtils.isEmpty(quantityString))
-            {
-                // no Editable fields have been modified.
-                Toast.makeText(this, "Oil not added to database. " +
-                                "\n" + "Please enter all required information",
-                        Toast.LENGTH_SHORT).show();
-                return;
         }
 
         // Create a ContentValues object where column names are the keys,
@@ -443,6 +425,32 @@ public class EditorActivity extends AppCompatActivity implements
         }
     }
 
+    private boolean entryComplete() {
+
+        // Set image string to null if no image Uri is found.
+        if (mImageUri != null) {
+            imageString = mImageUri.toString();
+        } else {
+            imageString = "";
+        }
+
+        if (mQuantityTextView != null) {
+            // Quantity from edit oil
+            quantityString = mQuantityTextView.getText().toString().trim();
+        } else {
+            // Quantity from initial oil
+            quantityString = initialQty.getText().toString().trim();
+        }
+        nameString = mNameEditText.getText().toString().trim();
+        priceString = mPriceEditText.getText().toString().trim();
+        if (imageString.equals("") || nameString.equals("") || priceString.equals("")
+                || quantityString.equals("")) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     // Method to delete an oil from the database.
     private void deleteOil() {
         // Verify the oil exists, prior to attempting to delete.
@@ -489,11 +497,19 @@ public class EditorActivity extends AppCompatActivity implements
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
                 // Save oil to database
-                saveOil();
-                // Exit activity
-                finish();
-                return true;
-            // Respond to a click on the "Delete" menu option
+                if (!entryComplete()) {
+                    // not all Editable fields have been modified.
+                    Toast.makeText(this, getString(R.string.oil_not_added) + "\n"
+                                    + getString(R.string.oil_not_added_part2),
+                            Toast.LENGTH_SHORT).show();
+                    return true;
+                } else {
+                    saveOil();
+                    // Exit activity
+                    finish();
+                    return true;
+                }
+                // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
                 // Show a dialog that notifies the user they are deleting an oil
                 showDeleteConfirmationDialog();
@@ -585,13 +601,13 @@ public class EditorActivity extends AppCompatActivity implements
     }
 
     // create intent to use email for ordering inventory of a particular oil
-    public void orderOils(View view){
+    public void orderOils(View view) {
         String oilName = mNameEditText.getText().toString().trim();
 
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
         emailIntent.setData(Uri.parse("mailto:" + getText(R.string.order_email)));
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Order " + oilName);
-        if (emailIntent.resolveActivity(getPackageManager()) !=null){
+        if (emailIntent.resolveActivity(getPackageManager()) != null) {
             startActivity(emailIntent.createChooser(emailIntent, "Send Email"));
         }
     }
@@ -599,8 +615,8 @@ public class EditorActivity extends AppCompatActivity implements
     // The following code provided by forum mentor for the purpose of accessing camera and gallery
     public void requestPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ) {
-            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE) ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE) ||
                     ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             } else {
                 ActivityCompat.requestPermissions(this,
@@ -623,7 +639,7 @@ public class EditorActivity extends AppCompatActivity implements
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                     mButtonTakePicture.setEnabled(true);
-                }else {
+                } else {
                     Toast.makeText(getApplicationContext(), "Permission Denied",
                             Toast.LENGTH_SHORT).show();
                 }
@@ -632,7 +648,7 @@ public class EditorActivity extends AppCompatActivity implements
         }
     }
 
-    public void selectPicture (View view) {
+    public void selectPicture(View view) {
         Intent intent;
         Log.e(LOG_TAG, "While is set and the ifs are worked through.");
 
@@ -688,7 +704,6 @@ public class EditorActivity extends AppCompatActivity implements
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        Log.i(LOG_TAG, "Received an \"Activity Result\"");
         // The ACTION_OPEN_DOCUMENT intent was sent with the request code READ_REQUEST_CODE.
         // If the request code seen here doesn't match, it's the response to some other intent,
         // and the below code shouldn't run at all.
@@ -708,7 +723,6 @@ public class EditorActivity extends AppCompatActivity implements
                 isGalleryPicture = true;
             }
         } else if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
-            Log.i(LOG_TAG, "Uri: " + mImageUri.toString());
 
             mBitmap = getBitmapFromUri(mImageUri);
             mImageView.setImageBitmap(mBitmap);
@@ -769,8 +783,6 @@ public class EditorActivity extends AppCompatActivity implements
                     }
                 }
             }
-        } else {
-            Log.v(getString(R.string.app_name), "External storage is not mounted READ/WRITE.");
         }
         return storageDir;
     }

@@ -107,6 +107,12 @@
     <!-- Dialog button text for the option to cancel deletion of the current oil [CHAR LIMIT=20] -->
     <string name="cancel">Cancel</string>
 
+    <!-- Toast message in editor when user fails to provide all necessary info [CHAR LIMIT=NONE] -->
+    <string name="oil_not_added">Oil not added to database.</string>
+
+    <!-- 2nd half of oil_not_added Toast message [CHAR LIMIT=NONE] -->
+    <string name="oil_not_added_part2">Please enter all required information</string>
+
     <!-- Toast message in editor when current oil was successfully deleted [CHAR LIMIT=NONE] -->
     <string name="editor_delete_oil_successful">Oil deleted</string>
 

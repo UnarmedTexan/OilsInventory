@@ -6,5 +6,8 @@
     <dimen name="fab_margin">16dp</dimen>
 
     <!-- Common margin value used throughout the app -->
-    <dimen name="activity_margin">16dp</dimen>
+    <dimen name="activity_margin">8dp</dimen>
+
+    <!-- Common margin value used throughout the app -->
+    <dimen name="quantity_margin">4dp</dimen>
 </resources>
